@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "4VuXMr32gIE=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\acfro\\Documents\\FRC\\launchpad\\launchpad.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\acfro\\.nuget\\packages\\midi-dot-net\\1.2.0-preview.1\\midi-dot-net.1.2.0-preview.1.nupkg.sha512",
+    "C:\\Users\\acfro\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.26100.57\\microsoft.windows.sdk.net.ref.10.0.26100.57.nupkg.sha512"
+  ],
+  "logs": []
+}

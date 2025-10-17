@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "launchpad", "launchpad.csproj", "{CCC7E11E-CF9B-EF2E-85E4-28EF5FC3FF9E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CCC7E11E-CF9B-EF2E-85E4-28EF5FC3FF9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCC7E11E-CF9B-EF2E-85E4-28EF5FC3FF9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCC7E11E-CF9B-EF2E-85E4-28EF5FC3FF9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCC7E11E-CF9B-EF2E-85E4-28EF5FC3FF9E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FB5559BF-8C48-4E1C-A7C6-13C333FC1C46}
+	EndGlobalSection
+EndGlobal
