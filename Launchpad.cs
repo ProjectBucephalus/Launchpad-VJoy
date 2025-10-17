@@ -25,7 +25,12 @@ class Launchpad
     private void SetJoy(bool val, uint btnId) =>
         joystick.SetBtn(val, VJOY_ID, btnId);
 
-    private static uint PitchToBtn(Pitch pitch) => ((uint)pitch) + 1;
+    private static uint PitchToBtn(Pitch pitch) {
+        uint pitchNum = (uint)pitch;
+        uint row = pitchNum / 16;
+        uint convertedNum = pitchNum - (7 * row);
+        return convertedNum + 1;
+    }
 
     private void InitLaunchpad()
     {
@@ -95,7 +100,7 @@ class Launchpad
         }
         else if (vel == 0)
         {
-            SetPad(pitch, PadColor.FULL_ORANGE);
+            SetPad(pitch, PadColor.DIM_AMBER);
             SetJoy(false, PitchToBtn(pitch));
         }
     }
@@ -104,6 +109,8 @@ class Launchpad
     {
         launchpadInput.NoteOn += OnPress;
         launchpadInput.StartReceiving(null);
+
+        foreach (Pitch p in Enum.GetValues<Pitch>()) SetPad(p, PadColor.DIM_AMBER);
     }
 
     private static void ExitWith(string msg)
