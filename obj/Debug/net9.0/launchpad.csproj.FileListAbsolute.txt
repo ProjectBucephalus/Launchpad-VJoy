@@ -1,4 +1,0 @@
-C:\Users\acfro\Documents\FRC\launchpad\obj\Debug\net9.0\launchpad.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\acfro\Documents\FRC\launchpad\obj\Debug\net9.0\launchpad.AssemblyInfoInputs.cache
-C:\Users\acfro\Documents\FRC\launchpad\obj\Debug\net9.0\launchpad.AssemblyInfo.cs
-C:\Users\acfro\Documents\FRC\launchpad\obj\Debug\net9.0\launchpad.csproj.CoreCompileInputs.cache
