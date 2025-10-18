@@ -6,31 +6,31 @@ using Midi.Messages;
 
 class Launchpad
 {
-    private const uint VJOY_ID = 1; // Valid range [1..16]
+    private const uint VJOY_ID = 2; // Valid range [1..16]
     private static readonly string[] LAUNCHPAD_NAMES = ["Launchpad", "LPMini", "LPX"];
 
     private readonly vJoy joystick = new();
     private InputDevice launchpadInput;
     private OutputDevice launchpadOutput;
 
+    //Pitches 8, 24, 40, 56, 72, 88, 104, 120 are DPad 0
+    //Rows 0 and 1 are DPad 1
+    //Rows 2-3 are DPads 2-3
+    //Bottom 4 rows are all indiviudal buttons
     public Launchpad()
     {
         InitLaunchpad();
         InitJoystick();
     }
 
-    private void SetPad(Pitch pitch, PadColor color) =>
+    private void SetColour(Pitch pitch, PadColor color) =>
         launchpadOutput.SendNoteOn(Channel.Channel1, pitch, (int)color);
 
-    private void SetJoy(bool val, uint btnId) =>
-        joystick.SetBtn(val, VJOY_ID, btnId);
+    private void SetBtn(uint btnId, bool val) =>
+        joystick.SetBtn(val, VJOY_ID, btnId+1);
 
-    private static uint PitchToBtn(Pitch pitch) {
-        uint pitchNum = (uint)pitch;
-        uint row = pitchNum / 16;
-        uint convertedNum = pitchNum - (7 * row);
-        return convertedNum + 1;
-    }
+    private void SetPov(uint povId, int val) =>
+        joystick.SetContPov(val*100, VJOY_ID, povId+1);
 
     private void InitLaunchpad()
     {
@@ -63,6 +63,7 @@ class Launchpad
         // Ensure vJoy enabled
         if (!joystick.vJoyEnabled()) ExitWith("vJoy driver not enabled: Failed Getting vJoy attributes.");
 
+        Console.WriteLine(joystick.GetVJDButtonNumber(VJOY_ID));
         // Check the state of the requested device
         switch (joystick.GetVJDStatus(VJOY_ID))
         {
@@ -86,31 +87,90 @@ class Launchpad
             case VjdStat.VJD_STAT_UNKN:
                 ExitWith($"vJoy Device {VJOY_ID} general error.");
                 return;
-        };
+        }
+        ;
+    }
+
+    private void HandlePov(int vel, uint povId, int onVal)
+    {
+        if (vel == 127) 
+            SetPov(povId, onVal);
+        else if (vel == 0) 
+            SetPov(povId, -1);
     }
 
     private void OnPress(NoteOnMessage msg)
     {
-        var vel = msg.Velocity;
+        int vel = msg.Velocity;
         var pitch = msg.Pitch;
-        if (vel == 127)
+
+        int nPitch = (int)pitch;
+        int col = nPitch % 16;
+        int row = nPitch / 16;
+
+        if (col == 8)
+            HandlePov(vel, 0, row);
+        else if (row < 2)
+            HandlePov(vel, 1, col + (row * 8));
+        else if (row == 2)
+            HandlePov(vel, 2, col);
+        else if (row == 3)
+            HandlePov(vel, 3, col);
+        else
         {
-            SetPad(pitch, PadColor.FULL_GREEN);
-            SetJoy(true, PitchToBtn(pitch));
+            uint btn = (uint)(col + ((row - 4) * 8));
+            if (vel == 127)
+                SetBtn(btn, true);
+            else if (vel == 0)
+                SetBtn(btn, false);
         }
-        else if (vel == 0)
+
+        if (vel == 127) 
+            SetColour(pitch, PadColor.FULL_GREEN);
+        else if (vel == 0) 
+            SetColour(pitch, PadColor.DIM_AMBER);
+    }
+
+    private void ColourDemo()
+    {
+        SetSquare(0, PadColor.OFF);
+        SetSquare(2, PadColor.DIM_GREEN);
+        SetSquare(4, PadColor.MEDIUM_GREEN);
+        SetSquare(6, PadColor.FULL_GREEN);
+
+        SetSquare(32, PadColor.DIM_RED);
+        SetSquare(34, PadColor.DIM_AMBER);
+        SetSquare(36, PadColor.MEDIUM_YELLOW_GREEN);
+        SetSquare(38, PadColor.FULL_YELLOW_GREEN);
+
+        SetSquare(64, PadColor.MEDIUM_RED);
+        SetSquare(66, PadColor.MEDIUM_ORANGE);
+        SetSquare(68, PadColor.MEDIUM_AMBER);
+        SetSquare(70, PadColor.FULL_YELLOW);
+
+        SetSquare(96, PadColor.FULL_RED);
+        SetSquare(98, PadColor.FULL_ORANGE_RED);
+        SetSquare(100, PadColor.FULL_ORANGE);
+        SetSquare(102, PadColor.FULL_AMBER);
+
+        void SetSquare(uint topLeft, PadColor color)
         {
-            SetPad(pitch, PadColor.DIM_AMBER);
-            SetJoy(false, PitchToBtn(pitch));
+            SetColour((Pitch)topLeft, color);
+            SetColour((Pitch)topLeft + 1, color);
+            SetColour((Pitch)topLeft + 16, color);
+            SetColour((Pitch)topLeft + 17, color);
         }
     }
+
+    private void Prt5985(byte speed) =>
+        launchpadOutput.SendSysEx([0xF0, 0x00, 0x20, 0x29, 0x09, (byte)PadColor.FULL_RED + 64, speed, 0x35, 0x39, 0x38, 0x35, 0xF7]);
 
     public void BeginComms()
     {
         launchpadInput.NoteOn += OnPress;
         launchpadInput.StartReceiving(null);
 
-        foreach (Pitch p in Enum.GetValues<Pitch>()) SetPad(p, PadColor.DIM_AMBER);
+        foreach (Pitch p in Enum.GetValues<Pitch>()) SetColour(p, PadColor.DIM_AMBER);
     }
 
     private static void ExitWith(string msg)
