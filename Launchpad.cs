@@ -1,17 +1,19 @@
 ﻿using Midi.Enums;
 using Midi.Devices;
 using vJoyInterfaceWrap;
-using Windows.Media.Capture;
 using Midi.Messages;
+using NetworkTables;
+using NetworkTables.Tables;
 
 class Launchpad
 {
+    private const string NT_TABLE_NAME = "LaunchPadColours";
     private const uint VJOY_ID = 2; // Valid range [1..16]
     private static readonly string[] LAUNCHPAD_NAMES = ["Launchpad", "LPMini", "LPX"];
-
     private readonly vJoy joystick = new();
     private InputDevice launchpadInput;
     private OutputDevice launchpadOutput;
+    private readonly NetworkTable ntTable;
 
     //Pitches 8, 24, 40, 56, 72, 88, 104, 120 are DPad 0
     //Rows 0 and 1 are DPad 1
@@ -21,6 +23,11 @@ class Launchpad
     {
         InitLaunchpad();
         InitJoystick();
+        NetworkTable.SetClientMode();
+        NetworkTable.SetPort(1735);
+        NetworkTable.Initialize();
+
+        ntTable = NetworkTable.GetTable(NT_TABLE_NAME); //new("Launchpad", "127.0.0.1");//, onNewTopicData: OnNTUpdate);
     }
 
     private void SetColour(Pitch pitch, PadColor color) =>
@@ -165,10 +172,19 @@ class Launchpad
     private void Prt5985(byte speed) =>
         launchpadOutput.SendSysEx([0xF0, 0x00, 0x20, 0x29, 0x09, (byte)PadColor.FULL_RED + 64, speed, 0x35, 0x39, 0x38, 0x35, 0xF7]);
 
+    private void OnNTUpdate(ITable source, string key, Value value, NotifyFlags flags)
+    {
+        int nKey = int.Parse(key);
+        int btnId = (nKey % 9) + ((nKey / 9) * 16);
+        Console.WriteLine(btnId);
+        SetColour((Pitch)btnId, (PadColor)value.GetDouble());
+    }    
+
     public void BeginComms()
     {
         launchpadInput.NoteOn += OnPress;
         launchpadInput.StartReceiving(null);
+        ntTable.AddTableListener(OnNTUpdate);        
 
         foreach (Pitch p in Enum.GetValues<Pitch>()) SetColour(p, PadColor.DIM_AMBER);
     }

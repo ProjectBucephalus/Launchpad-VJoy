@@ -25,7 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Midi"/>
+    <Reference Include="Midi" />
     <Reference Include="vJoyInterfaceWrap, Version=0.2.0.5, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\x64\vJoyInterfaceWrap.dll</HintPath>
@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FRC.NetworkTables" Version="3.1.8" />
     <PackageReference Include="midi-dot-net" Version="1.2.0-preview.1" />
   </ItemGroup>
 </Project>
